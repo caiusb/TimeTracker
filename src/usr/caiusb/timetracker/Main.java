@@ -1,12 +1,21 @@
 package usr.caiusb.timetracker;
 
-public class Main {
+import javax.swing.UIManager;
 
+public class Main {
+	
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-
+		System.setProperty("com.apple.mrj.application.apple.menu.about.name", "TimeTracker");
+        try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (Exception e) {
+		}
+        
+		TimeTrackerMainWindow window = new TimeTrackerMainWindow();
+		window.show();
 	}
 
 }
