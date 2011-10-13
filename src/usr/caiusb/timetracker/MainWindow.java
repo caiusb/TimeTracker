@@ -57,6 +57,14 @@ public class MainWindow {
 		
 		ActionListener forwardActionListener = new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				if (removedPanes.size() == 0) {
+					forwardButton.setEnabled(false);
+					return;
+				}
+				
+				ContentPane topPane = removedPanes.remove();
+				panes.add(topPane);
+				frame.getContentPane().add(topPane.getPane(), BorderLayout.CENTER);
 			}
 		};
 		
