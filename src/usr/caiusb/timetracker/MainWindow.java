@@ -3,23 +3,25 @@ package usr.caiusb.timetracker;
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.JTable;
 
-public class TimeTrackerMainWindow {
+public class MainWindow {
 	
 	private JFrame frame;
-	private JTable table;
 	private JButton backButton;
 	private JButton forwardButton;
 	
-	public TimeTrackerMainWindow() {
+	private Queue<ContentPane> panes = new LinkedBlockingQueue<ContentPane>();
+	private Queue<ContentPane> removedPanes = new LinkedBlockingQueue<ContentPane>();
+	
+	public MainWindow() {
 		frame = new JFrame();
 		
 		frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
@@ -29,14 +31,23 @@ public class TimeTrackerMainWindow {
 		JPanel navigationPanel = newPanelWithGridBagLayout();
 		frame.getContentPane().add(navigationPanel, BorderLayout.NORTH);
 		
-		ActionListener dumbActionListener = new ActionListener() {
+		ActionListener backActionListener = new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				if (panes.size() < 1) {
+					backButton.setEnabled(false);
+					return;
+				}
+				
+				ContentPane topPane = panes.remove();
+				removedPanes.add(topPane);
+				
+				frame.getContentPane().add(topPane.getPane(), BorderLayout.CENTER);
 			}
 		};
 		
 		String leftTriangle = "\u25C0";
 		backButton = new JButton(leftTriangle);
-		backButton.addActionListener(dumbActionListener);
+		backButton.addActionListener(backActionListener);
 		GridBagConstraints backButtonConstraints = new GridBagConstraints();
 		backButtonConstraints.gridx = 0;
 		backButtonConstraints.gridy = 0;
@@ -44,27 +55,24 @@ public class TimeTrackerMainWindow {
 		
 		backButton.setEnabled(false);
 		
+		ActionListener forwardActionListener = new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			}
+		};
+		
 		String rightTriangle = "\u25BA";
 		forwardButton = new JButton(rightTriangle);
-		backButton.addActionListener(dumbActionListener);
+		backButton.addActionListener(forwardActionListener);
 		GridBagConstraints forwardButtonConstaints = new GridBagConstraints();
 		forwardButtonConstaints.gridx = 1;
 		forwardButtonConstaints.gridy = 0;
 		navigationPanel.add(forwardButton, forwardButtonConstaints);
 		forwardButton.setEnabled(false);
 		
-		table = new JTable();
-		frame.getContentPane().add(table, BorderLayout.CENTER);
+		MainPane mainPane = new MainPane(this);
+		panes.add(mainPane);
 		
-		JPanel newActivityPanel = newPanelWithGridBagLayout();
-		frame.getContentPane().add(newActivityPanel, BorderLayout.SOUTH);
-		
-		JButton newActivityButton = new JButton("New activity");
-		GridBagConstraints newActivityButtonConstaints = new GridBagConstraints();
-		newActivityButtonConstaints.insets = new Insets(0, 0, 0, 5);
-		newActivityButtonConstaints.gridx = 11;
-		newActivityButtonConstaints.gridy = 0;
-		newActivityPanel.add(newActivityButton, newActivityButtonConstaints);
+		frame.getContentPane().add(mainPane.getPane(), BorderLayout.CENTER);
 	}
 
 	private JPanel newPanelWithGridBagLayout() {
@@ -86,11 +94,11 @@ public class TimeTrackerMainWindow {
 		frame.setVisible(false);
 	}
 	
-	public void setBackEnabled(boolean enabled) {
-		backButton.setEnabled(enabled);
-	}
-	
-	public void setForwardEnabled(boolean enabled) {
-		forwardButton.setEnabled(enabled);
+	public void addPane(ContentPane pane) {
+		panes.add(pane);
+		removedPanes.clear();
+		
+		backButton.setEnabled(true);
+		frame.getContentPane().add(pane.getPane(), BorderLayout.CENTER);
 	}
 }

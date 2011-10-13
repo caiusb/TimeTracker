@@ -14,7 +14,7 @@ public class Main {
 		} catch (Exception e) {
 		}
         
-		TimeTrackerMainWindow window = new TimeTrackerMainWindow();
+		MainWindow window = new MainWindow();
 		window.show();
 	}
 
